@@ -3,9 +3,10 @@ import urllib.request
 import urllib.error
 import json
 import time
+import sys
 
-def verify():
-    url = "http://127.0.0.1:8000/api/v1/auth/login"
+def verify(base_url="http://127.0.0.1:8000"):
+    url = f"{base_url}/api/v1/auth/login"
     payload = json.dumps({"username": "admin", "password": "WrongPassword123"}).encode()
 
     print("=== RATE LIMIT VERIFICATION (Limit: 20 requests/minute) ===")
@@ -36,4 +37,5 @@ def verify():
     print(f"\nSUCCESS: Rate limiting activated at Request #{first_429_index} with HTTP 429 Too Many Requests.")
 
 if __name__ == "__main__":
-    verify()
+    target = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000"
+    verify(target)

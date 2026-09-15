@@ -1,16 +1,18 @@
 """Verification script to inspect real logged audit entries."""
 import urllib.request
 import json
+import sys
 
-def verify():
+def verify(base_url="http://127.0.0.1:8000"):
+    print(f"Target Base URL: {base_url}")
     # 1. Login as admin
     login_payload = json.dumps({"username": "admin", "password": "AdminSecret123!"}).encode()
-    req = urllib.request.Request("http://127.0.0.1:8000/api/v1/auth/login", data=login_payload, headers={"Content-Type": "application/json"})
+    req = urllib.request.Request(f"{base_url}/api/v1/auth/login", data=login_payload, headers={"Content-Type": "application/json"})
     res = urllib.request.urlopen(req)
     admin_token = json.loads(res.read().decode())["access_token"]
 
     # 2. Query audit logs
-    audit_req = urllib.request.Request("http://127.0.0.1:8000/api/v1/audit-logs/?limit=10", headers={"Authorization": f"Bearer {admin_token}"})
+    audit_req = urllib.request.Request(f"{base_url}/api/v1/audit-logs/?limit=10", headers={"Authorization": f"Bearer {admin_token}"})
     audit_res = urllib.request.urlopen(audit_req)
     logs = json.loads(audit_res.read().decode())
 
@@ -25,4 +27,5 @@ def verify():
         print(f"  Response Status     : {log['response_status']}")
 
 if __name__ == "__main__":
-    verify()
+    target = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000"
+    verify(target)

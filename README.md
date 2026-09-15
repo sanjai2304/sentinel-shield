@@ -4,12 +4,26 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com)
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0-red.svg)](https://www.sqlalchemy.org/)
 [![NetworkX](https://img.shields.io/badge/NetworkX-3.2+-orange.svg)](https://networkx.org/)
-[![WebSocket](https://img.shields.io/badge/Stream-WebSocket%20Live-brightgreen.svg)]()
+[![Status](https://img.shields.io/badge/Deployment-Live%20Permanent-success.svg)](https://sentinel-shield-xv2q.onrender.com)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
+
+> **Permanent Production Deployment URL**: **[https://sentinel-shield-xv2q.onrender.com](https://sentinel-shield-xv2q.onrender.com)**  
+> **Interactive Swagger API Docs**: **[https://sentinel-shield-xv2q.onrender.com/docs](https://sentinel-shield-xv2q.onrender.com/docs)**  
+> **WebSocket Stream Endpoint**: `wss://sentinel-shield-xv2q.onrender.com/ws/dashboard`
 
 **SentinelShield** is an end-to-end, production-grade real-time data access monitoring and anomaly detection system with security hardening. Built with Python, FastAPI, SQLAlchemy 2.0 async, NetworkX, and WebSockets, it monitors every user interaction with sensitive enterprise data in real time (continuous streaming, no batch cron jobs).
 
 The system's access control layer and audit logging double as the continuous ingestion stream feeding the anomaly detection engine. Anomalies are flagged within milliseconds and broadcast live to a cyber Security Operations Center (SOC) dashboard.
+
+---
+
+## Why This Domain Was Chosen
+
+Data access governance and insider threat detection represent one of the most critical challenges in enterprise cybersecurity:
+1. **Perimeter Defense is Not Enough**: Modern zero-trust security acknowledges that attackers inevitably bypass network perimeters (via compromised credentials, phishing, or rogue insiders). The critical battleground is detecting *what they do after gaining access*.
+2. **Coherent Unified System**: Instead of treating access control, audit logging, and security analytics as disconnected siloed tools, SentinelShield uses the application's own authorization middleware and audit logging as the continuous real-time data pipeline feeding the anomaly detection engine.
+3. **Regulatory and Compliance Necessity**: Standards like SOC 2, HIPAA, ISO 27001, and GDPR mandate strict tracking of who touches sensitive PII, financial ledgers, and credentials. SentinelShield bridges compliance auditing with active threat prevention.
+4. **Explainability Over Black Boxes**: In high-stakes enterprise cybersecurity, security analysts reject black-box neural networks that output unexplained risk scores. SentinelShield leverages explainable mathematical formulations (Rolling Z-Score deviations and NetworkX bipartite graph novelty/fan-out metrics) that provide plain-language explanations for every alert.
 
 ---
 
@@ -94,13 +108,17 @@ To preserve auditability and trust in a security setting, SentinelShield rejects
 
 ## Security Hardening & RBAC
 
-| Security Layer | Implementation Details |
-| :--- | :--- |
-| **Authentication** | Cryptographically signed HMAC-SHA256 JWT tokens. Password hashing using `bcrypt`. |
-| **Endpoint RBAC** | Enforced at route level using FastAPI dependency injection (`require_admin`, `require_analyst_or_admin`). |
-| **Role Matrix** | **Analyst**: Queries catalog, reads authorized data, investigates anomalies relevant to their user account.<br>**Admin**: Manages users/resources, views all enterprise audit logs, investigates global anomalies, resolves security alerts. |
-| **Audit Logging** | High-performance middleware intercepts every sensitive resource access. Records immutable who, what, when, IP, HTTP method, latency, and status code to the database. Queryable **only** by `admin`. |
-| **Rate Limiting** | SlowAPI (Token Bucket / Sliding Window) protects public endpoints against brute force (`/auth/login` capped at 20/min; resource queries capped at 60/min). |
+### Role-Based Access Control (RBAC) Matrix
+
+| Capability / Endpoint | `analyst` Role | `admin` Role | Backend Enforcement Mechanism |
+| :--- | :---: | :---: | :--- |
+| **Browse Resource Catalog** (`GET /api/v1/resources/`) | Allowed | Allowed | `require_analyst_or_admin` dependency |
+| **Read Sensitive Records** (`GET /api/v1/resources/{key}`) | Scoped | Allowed | Data clearance & role verification |
+| **Investigate Incident Details** (SOC Modal) | Read-Only | Full Access | Token role scoping |
+| **View Immutable Audit Logs** (`GET /api/v1/audit-logs/`) | **Denied (403)** | **Allowed** | `require_admin` dependency |
+| **Register / Edit Resources** (`POST /api/v1/resources/`) | **Denied (403)** | **Allowed** | `require_admin` dependency |
+| **Trigger Live Attack Scenarios** (`POST /api/v1/simulator/attack`) | **Denied (403)** | **Allowed** | `require_admin` dependency |
+| **Triage & Resolve Anomalies** (`POST /api/v1/anomalies/{id}/resolve`) | **Denied (403)** | **Allowed** | `require_admin` dependency |
 
 ---
 
