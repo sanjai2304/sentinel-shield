@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: sentinel-shield
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./sentinel_shield.db
+      - key: SIMULATOR_ENABLED_AT_START
+        value: "true"
+      - key: SIMULATOR_DEFAULT_DELAY_SECONDS
+        value: "2.5"

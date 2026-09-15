@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  sentinel-shield:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel_shield_app
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=False
+      - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+      - DATABASE_URL=sqlite+aiosqlite:///./sentinel_shield.db
+      - SIMULATOR_ENABLED_AT_START=true
+      - SIMULATOR_DEFAULT_DELAY_SECONDS=2.0
+    restart: unless-stopped
+    volumes:
+      - sentinel_data:/app
+
+volumes:
+  sentinel_data:
